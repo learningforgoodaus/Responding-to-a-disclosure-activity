@@ -1,0 +1,226 @@
+/* styles.css */
+/* Professional, Premium Design for DFV Training Module */
+
+:root {
+    /* Brand Colours */
+    --bg-gradient-start: #F2F2F2;
+    --bg-gradient-end: #E3D8EB;
+    --card-bg: #ffffff;
+    --text-primary: #413659;
+    --text-secondary: #513873;
+    --primary-color: #513873;
+    --primary-hover: #413659;
+    --accent-color: #C6B4D9;
+    --muted-color: #9C7F9D;
+
+    /* Trust Mechanics */
+    --trust-high: #4CAF50;
+    --trust-med: #513873;
+    --trust-low: #757575;
+
+    --border-radius: 12px;
+    --font-heading: 'Roboto', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background: #f6f5f8;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#app-container {
+    width: 100%;
+    max-width: 700px;
+    padding: 20px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(65, 54, 89, 0.1);
+    /* Deep brand shadow */
+    overflow: hidden;
+    position: relative;
+    border-top: 6px solid var(--primary-color);
+    /* Brand stripe */
+    padding: 0;
+    transition: all 0.5s ease;
+}
+
+/* --- Header & Status --- */
+.card-header {
+    background-color: #fafafa;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.progress-container {
+    flex-grow: 1;
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    margin-right: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.5s ease;
+}
+
+.trust-indicator {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--trust-med);
+    transition: color 0.3s ease;
+}
+
+/* --- Content Wrapper --- */
+.content-wrapper {
+    padding: 20px 30px;
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+}
+
+/* Avatar */
+.avatar-container {
+    flex-shrink: 0;
+}
+
+.avatar {
+    /* width: 50px; Removed fixed size to let icon scale */
+    /* height: 50px; */
+    /* background-color: var(--accent-color); Removed circle bg */
+    color: var(--primary-color);
+    /* border-radius: 50%; Removed circle radius */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: normal;
+    /* Icons don't need bold */
+    font-size: 3rem;
+    /* Larger icon since no background */
+}
+
+/* Text */
+.text-area {
+    flex-grow: 1;
+}
+
+.monologue-text {
+    font-style: italic;
+    color: var(--muted-color);
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    opacity: 0;
+    animation: fadeIn 0.8s forwards;
+}
+
+.scenario-text {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: slideUpFade 0.6s 0.2s forwards;
+}
+
+/* --- Choices --- */
+.choices {
+    padding: 0 30px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.choice-btn {
+    background-color: white;
+    border: 2px solid #e0e0e0;
+    color: var(--text-primary);
+    padding: 18px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-body);
+    opacity: 0;
+    animation: fadeIn 0.5s 0.8s forwards;
+}
+
+.choice-btn:hover {
+    border-color: var(--primary-color);
+    background-color: #fcfcfc;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.choice-btn::after {
+    content: '→';
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    color: var(--primary-color);
+}
+
+.choice-btn:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.choice-btn.restart {
+    justify-content: center;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+.choice-btn.restart:hover {
+    background-color: #eee;
+    color: #333;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpFade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .content-wrapper {
+        flex-direction: column;
+        padding: 20px 25px;
+    }
+
+    .choices {
+        padding: 0 25px 30px;
+    }
+
+    .avatar-container {
+        margin-bottom: 10px;
+    }
+}
