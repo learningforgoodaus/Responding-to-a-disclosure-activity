@@ -9,8 +9,8 @@
             --primary-dark: #3E3054;
             --primary-med: #7D6B91;
             --primary-light: #E6E0ED;
-            --correct: #4CAF50;
-            --incorrect: #D32F2F;
+            --correct-flash: #4CAF50;
+            --incorrect-flash: #D32F2F;
             --text-color: #333;
         }
 
@@ -40,7 +40,7 @@
             background-color: white; border: 1px solid var(--primary-light);
             border-left: 5px solid var(--primary-med); padding: 10px;
             border-radius: 5px; cursor: grab; font-size: 0.85rem;
-            user-select: none;
+            user-select: none; color: var(--text-color);
         }
         .zone {
             flex: 1; border: 2px dashed #ccc; border-radius: 10px; padding: 10px;
@@ -57,27 +57,28 @@
             background: white; border-radius: 12px; border-left: 6px solid var(--primary-med);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center;
             justify-content: center; text-align: center; padding: 15px; font-size: 1rem;
-            color: var(--text-color); /* Uniform text color */
+            color: var(--text-color);
             touch-action: none; z-index: 10; transition: transform 0.2s, background-color 0.2s;
         }
         .swipe-hint {
             display: flex; justify-content: space-between; width: 100%;
             position: absolute; bottom: 10px; font-weight: bold; font-size: 0.75rem;
-            color: var(--primary-dark); /* Uniform hint color */
+            color: var(--primary-dark);
         }
 
-        /* --- SUMMARY --- */
+        /* --- SUMMARY VIEW --- */
         #summary-view {
             display: none; background: white; width: 95%; max-width: 600px;
             margin: 10px auto; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .summary-grid { display: flex; gap: 15px; }
-        .summary-list { list-style: none; padding: 0; font-size: 0.85rem; margin: 0; }
-        .summary-list li { margin-bottom: 6px; line-height: 1.2; }
-        .help-text { color: var(--correct); }
-        .harm-text { color: var(--incorrect); }
+        .summary-list { list-style: none; padding: 0; font-size: 0.85rem; margin: 0; color: var(--text-color); }
+        .summary-list li { margin-bottom: 8px; line-height: 1.2; border-bottom: 1px solid var(--primary-light); padding-bottom: 4px; }
+        
+        .summary-h4 { color: var(--primary-dark); margin: 0 0 10px 0; font-size: 0.95rem; border-bottom: 2px solid var(--primary-light); padding-bottom: 5px; }
 
         .controls { margin-top: 15px; text-align: center; }
+        #feedback-area { color: var(--primary-dark); margin-top: 10px; font-size: 0.9rem; }
 
         @media (max-width: 768px) {
             .game-container, .controls { display: none; }
@@ -94,7 +95,7 @@
 
     <div class="game-container">
         <div class="source-container" id="source-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <h3 style="text-align:center; font-size:1rem; margin-top:0;">Actions to Sort</h3>
+            <h3 style="text-align:center; font-size:1rem; margin-top:0; color: var(--primary-dark);">Actions to Sort</h3>
             <div class="draggable" draggable="true" ondragstart="drag(event)" id="item1" data-type="harmful">Ask the partner if they used violence.</div>
             <div class="draggable" draggable="true" ondragstart="drag(event)" id="item2" data-type="helpful">Believe them. Do not investigate.</div>
             <div class="draggable" draggable="true" ondragstart="drag(event)" id="item3" data-type="harmful">Suggest couples counselling.</div>
@@ -106,14 +107,14 @@
                 <h3 style="color:var(--primary-dark); font-size:0.85rem; margin:0;">💜 HELPFUL & SAFE</h3>
             </div>
             <div class="zone zone-risky" id="harmful-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <h3 style="color:#8d6e63; font-size:0.85rem; margin:0;">🚫 HARMFUL & UNSAFE</h3>
+                <h3 style="color:var(--primary-dark); font-size:0.85rem; margin:0;">🚫 HARMFUL & UNSAFE</h3>
             </div>
         </div>
     </div>
 
     <div class="controls">
         <button id="check-btn" onclick="checkAnswers()" style="background:var(--primary-dark); color:white; padding:8px 16px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Check Answers</button>
-        <div id="feedback-area" style="margin-top:10px; font-size:0.9rem;"></div>
+        <div id="feedback-area"></div>
     </div>
 
     <div id="mobile-swipe-root">
@@ -128,11 +129,11 @@
         <h3 style="text-align:center; color:var(--primary-dark); margin-top:0;">Results Summary</h3>
         <div class="summary-grid">
             <div style="flex:1">
-                <h4 class="help-text" style="margin:0 0 8px 0; font-size:0.9rem;">Helpful & Safe</h4>
+                <h4 class="summary-h4">Helpful & Safe</h4>
                 <ul id="sum-helpful" class="summary-list"></ul>
             </div>
             <div style="flex:1">
-                <h4 class="harm-text" style="margin:0 0 8px 0; font-size:0.9rem;">Harmful & Unsafe</h4>
+                <h4 class="summary-h4">Harmful & Unsafe</h4>
                 <ul id="sum-harmful" class="summary-list"></ul>
             </div>
         </div>
@@ -150,7 +151,6 @@
 
         let results = { helpful: [], harmful: [] };
 
-        // --- PC DRAG LOGIC ---
         function allowDrop(ev) { ev.preventDefault(); }
         function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
         function drop(ev) {
@@ -158,7 +158,10 @@
             const id = ev.dataTransfer.getData("text");
             const el = document.getElementById(id);
             const targetZone = ev.target.closest('.zone') || ev.target.closest('.source-container');
-            if (targetZone) targetZone.appendChild(el);
+            if (targetZone) {
+                targetZone.appendChild(el);
+                el.style.border = "1px solid var(--primary-light)"; // Reset PC border on move
+            }
         }
 
         function checkAnswers() {
@@ -169,10 +172,7 @@
                 const parent = item.parentElement.id;
                 const type = item.dataset.type;
                 if ((type === 'helpful' && parent === 'helpful-zone') || (type === 'harmful' && parent === 'harmful-zone')) {
-                    item.style.border = "1px solid var(--correct)";
                     correct++;
-                } else {
-                    item.style.border = "1px solid var(--incorrect)";
                 }
                 if(parent !== 'source-zone') {
                     const finalCat = parent === 'helpful-zone' ? 'helpful' : 'harmful';
@@ -180,10 +180,9 @@
                 }
             });
             if(correct === 5) showSummary();
-            else document.getElementById('feedback-area').innerText = `Sorted correctly: ${correct}/5`;
+            else document.getElementById('feedback-area').innerText = `Correctly sorted: ${correct}/5. Keep trying!`;
         }
 
-        // --- MOBILE SWIPE LOGIC ---
         let swipedCount = 0;
         function initMobile() {
             const stack = document.getElementById('card-stack');
@@ -203,11 +202,6 @@
             el.addEventListener('touchmove', e => {
                 moveX = e.touches[0].clientX - startX;
                 el.style.transform = `translateX(${moveX}px) rotate(${moveX/15}deg)`;
-                
-                // Hints while dragging
-                if (moveX > 40) el.style.backgroundColor = "#fdfbff"; // Subtle purple-white
-                else if (moveX < -40) el.style.backgroundColor = "#fffbfb"; // Subtle white-rose
-                else el.style.backgroundColor = "white";
             });
 
             el.addEventListener('touchend', () => {
@@ -215,14 +209,14 @@
                 
                 if (direction) {
                     if (direction === itemData.type) {
-                        el.style.backgroundColor = "var(--correct)";
+                        el.style.backgroundColor = "var(--correct-flash)";
                         el.style.color = "white";
                         el.style.transform = `translateX(${moveX > 0 ? 800 : -800}px) rotate(${moveX/5}deg)`;
                         results[direction].push(itemData.text);
                         swipedCount++;
                         if(swipedCount === content.length) setTimeout(showSummary, 500);
                     } else {
-                        el.style.backgroundColor = "var(--incorrect)";
+                        el.style.backgroundColor = "var(--incorrect-flash)";
                         el.style.color = "white";
                         setTimeout(() => {
                             el.style.transform = 'translateX(0) rotate(0)';
@@ -232,22 +226,18 @@
                     }
                 } else {
                     el.style.transform = 'translateX(0) rotate(0)';
-                    el.style.backgroundColor = 'white';
                 }
                 moveX = 0;
             });
         }
 
         function showSummary() {
-            const pc = document.querySelector('.game-container');
-            const mobile = document.getElementById('mobile-swipe-root');
-            const controls = document.querySelector('.controls');
-            if(pc) pc.style.display = 'none';
-            if(mobile) mobile.style.display = 'none';
-            if(controls) controls.style.display = 'none';
+            document.querySelector('.game-container').style.display = 'none';
+            if(document.getElementById('mobile-swipe-root')) document.getElementById('mobile-swipe-root').style.display = 'none';
+            document.querySelector('.controls').style.display = 'none';
             document.getElementById('summary-view').style.display = 'block';
-            document.getElementById('sum-helpful').innerHTML = results.helpful.map(t => `<li class="help-text">✓ ${t}</li>`).join('');
-            document.getElementById('sum-harmful').innerHTML = results.harmful.map(t => `<li class="harm-text">✕ ${t}</li>`).join('');
+            document.getElementById('sum-helpful').innerHTML = results.helpful.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('sum-harmful').innerHTML = results.harmful.map(t => `<li>${t}</li>`).join('');
         }
 
         if (window.innerWidth <= 768) initMobile();
