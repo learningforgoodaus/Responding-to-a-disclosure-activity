@@ -1,300 +1,256 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compliant or Oppositional Drag & Drop Activity</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Responding to Disclosures</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
+        :root {
+            --primary-dark: #3E3054;
+            --primary-med: #7D6B91;
+            --primary-light: #E6E0ED;
+            --correct: #4CAF50;
+            --incorrect: #D32F2F;
+            --text-color: #333;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F2F2F2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            width: 100%;
-            overflow-x: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f6f5f8;
+            color: var(--text-color);
+            padding: 10px;
             margin: 0;
-            padding: 1rem;
+            display: block;
         }
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background-color: #FFF;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
+        h1 { color: var(--primary-dark); text-align: center; margin: 10px 0 5px 0; font-size: 1.4rem; }
+        p.instructions { max-width: 600px; text-align: center; margin: 0 auto 15px auto; line-height: 1.4; font-size: 0.9rem; }
+
+        /* --- PC VIEW --- */
+        .game-container {
+            display: flex; gap: 15px; width: 100%; max-width: 900px;
+            margin: 0 auto; flex-wrap: wrap; justify-content: center;
+        }
+        .source-container {
+            flex: 1; min-width: 250px; background: white; padding: 15px;
+            border-radius: 8px; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; gap: 8px; min-height: 250px;
+        }
+        .draggable {
+            background-color: white; border: 1px solid var(--primary-light);
+            border-left: 5px solid var(--primary-med); padding: 10px;
+            border-radius: 5px; cursor: grab; font-size: 0.85rem;
+            user-select: none;
+        }
+        .zone {
+            flex: 1; border: 2px dashed #ccc; border-radius: 10px; padding: 10px;
+            background-color: #fafafa; min-height: 140px; display: flex; flex-direction: column; gap: 5px;
         }
 
-        .instruction-box {
-            min-height: 120px; 
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #C6B4D9;
-            background-color: #F2F2F2;
-            margin-bottom: 20px;
+        /* --- MOBILE SWIPE VIEW --- */
+        #mobile-swipe-root { 
+            display: none; width: 100%; max-width: 400px; margin: 0 auto;
+            position: relative; height: 280px; 
         }
-
-        /* --- DESKTOP SPECIFIC STYLES --- */
-        .draggable-item {
-            cursor: grab;
-            padding: 0.5rem 1rem;
-            margin: 0.25rem;
-            background-color: #C6B4D9;
-            color: #413659;
-            border-radius: 6px;
-            font-weight: 600;
-            text-align: center;
-            width: fit-content;
-            transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
-        }
-
-        .drop-target {
-            background-color: #413659;
-            color: #F2F2F2;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin: 0.5rem;
-            flex-grow: 1; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 120px;
-            transition: background-color 0.2s, border 0.2s;
-            border: 3px solid transparent;
-        }
-
-        .drop-target-title { font-weight: 700; color: #C6B4D9; }
-        .drag-over { border: 3px dashed #C6B4D9; background-color: #513873; }
-        .correct { background-color: #a7f3d0 !important; border: 2px solid #059669 !important; pointer-events: none; }
-        .incorrect { background-color: #fecaca !important; border: 2px solid #ef4444 !important; }
-
-        /* --- MOBILE SWIPE STYLES --- */
-        #mobile-swipe-zone {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        .swipe-labels {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 15px;
-            font-weight: 700;
-            /* Matches Heading Colour #513873 */
-            color: #513873; 
-            font-size: 0.85rem;
-        }
-
-        .card-stack {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            height: 220px;
-            perspective: 1000px;
-        }
-
         .swipe-card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: #C6B4D9;
-            color: #413659;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            touch-action: none;
-            transition: transform 0.1s ease-out, background-color 0.3s;
+            position: absolute; width: 85%; left: 7.5%; top: 10px; height: 160px;
+            background: white; border-radius: 12px; border-left: 6px solid var(--primary-med);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center;
+            justify-content: center; text-align: center; padding: 15px; font-size: 1rem;
+            color: var(--text-color); /* Uniform text color */
+            touch-action: none; z-index: 10; transition: transform 0.2s, background-color 0.2s;
+        }
+        .swipe-hint {
+            display: flex; justify-content: space-between; width: 100%;
+            position: absolute; bottom: 10px; font-weight: bold; font-size: 0.75rem;
+            color: var(--primary-dark); /* Uniform hint color */
         }
 
-        /* Swipe Feedback */
-        .swipe-correct { background-color: #d1fae5 !important; border: 2px solid #059669; }
-        .swipe-incorrect { background-color: #fee2e2 !important; border: 2px solid #ef4444; }
+        /* --- SUMMARY --- */
+        #summary-view {
+            display: none; background: white; width: 95%; max-width: 600px;
+            margin: 10px auto; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .summary-grid { display: flex; gap: 15px; }
+        .summary-list { list-style: none; padding: 0; font-size: 0.85rem; margin: 0; }
+        .summary-list li { margin-bottom: 6px; line-height: 1.2; }
+        .help-text { color: var(--correct); }
+        .harm-text { color: var(--incorrect); }
 
-        @media (max-width: 767px) {
-            #desktop-interaction-zone { display: none; }
-            #mobile-swipe-zone { display: flex; }
+        .controls { margin-top: 15px; text-align: center; }
+
+        @media (max-width: 768px) {
+            .game-container, .controls { display: none; }
+            #mobile-swipe-root { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2 id="main-heading" class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
-        
-        <div class="instruction-box text-sm text-[#413659]">
-            <p class="text-center w-full mb-2">
-                <strong>Sort the characteristics below into Oppositional or Compliant behaviours</strong>
-            </p>
-            <p><strong>Compliant:</strong> Acts obedient or eager to please as a way to avoid further punishment.</p>
-            <p><strong>Oppositional:</strong> Acts moody, withdrawn, or hostile because the immense stress and trauma are leaking out.</p>
-        </div>
+    <h1>Responding to Disclosures</h1>
+    <p class="instructions" id="main-instr">
+        Decide if the action is <strong>Helpful & Safe</strong> or <strong>Harmful & Unsafe</strong>.
+    </p>
 
-        <div id="desktop-interaction-zone">
-            <div id="drop-targets" class="flex justify-center gap-4 mb-3">
-                <div id="target-Compliant" class="drop-target w-1/2" data-category="Compliant">
-                    <div class="drop-target-title">Compliant</div>
-                </div>
-                <div id="target-Oppositional" class="drop-target w-1/2" data-category="Oppositional">
-                    <div class="drop-target-title">Oppositional</div>
-                </div>
+    <div class="game-container">
+        <div class="source-container" id="source-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3 style="text-align:center; font-size:1rem; margin-top:0;">Actions to Sort</h3>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="item1" data-type="harmful">Ask the partner if they used violence.</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="item2" data-type="helpful">Believe them. Do not investigate.</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="item3" data-type="harmful">Suggest couples counselling.</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="item4" data-type="helpful">Tell them it is not their fault.</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="item5" data-type="helpful">Respect their choice to stay or leave.</div>
+        </div>
+        <div class="drop-zones" style="flex:1.5; display:flex; flex-direction:column; gap:10px;">
+            <div class="zone zone-safe" id="helpful-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3 style="color:var(--primary-dark); font-size:0.85rem; margin:0;">💜 HELPFUL & SAFE</h3>
             </div>
-            <div id="drag-pool" class="flex flex-wrap justify-center p-2 bg-[#F2F2F2] rounded-lg mb-4 min-h-[150px]"></div>
-            <div class="text-center">
-                <button id="check-btn" class="px-6 py-2 bg-[#513873] text-white font-semibold rounded-lg">Check Answers</button>
+            <div class="zone zone-risky" id="harmful-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3 style="color:#8d6e63; font-size:0.85rem; margin:0;">🚫 HARMFUL & UNSAFE</h3>
             </div>
         </div>
+    </div>
 
-        <div id="mobile-swipe-zone">
-            <div class="swipe-labels">
-                <span>← OPPOSITIONAL</span>
-                <span>COMPLIANT →</span>
-            </div>
-            <div id="card-stack" class="card-stack"></div>
-            <p class="text-xs text-gray-500 mt-6 italic text-center">Swipe the card to the correct side to categorize it.</p>
+    <div class="controls">
+        <button id="check-btn" onclick="checkAnswers()" style="background:var(--primary-dark); color:white; padding:8px 16px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Check Answers</button>
+        <div id="feedback-area" style="margin-top:10px; font-size:0.9rem;"></div>
+    </div>
+
+    <div id="mobile-swipe-root">
+        <div id="card-stack"></div>
+        <div class="swipe-hint">
+            <span>← HARMFUL</span>
+            <span>HELPFUL →</span>
         </div>
+    </div>
 
-        <div id="feedback" class="mt-4 text-center font-bold text-lg"></div>
+    <div id="summary-view">
+        <h3 style="text-align:center; color:var(--primary-dark); margin-top:0;">Results Summary</h3>
+        <div class="summary-grid">
+            <div style="flex:1">
+                <h4 class="help-text" style="margin:0 0 8px 0; font-size:0.9rem;">Helpful & Safe</h4>
+                <ul id="sum-helpful" class="summary-list"></ul>
+            </div>
+            <div style="flex:1">
+                <h4 class="harm-text" style="margin:0 0 8px 0; font-size:0.9rem;">Harmful & Unsafe</h4>
+                <ul id="sum-harmful" class="summary-list"></ul>
+            </div>
+        </div>
+        <button onclick="location.reload()" style="width:100%; margin-top:15px; padding:10px; background:var(--primary-med); color:white; border:none; border-radius:5px; font-weight:bold;">Restart Activity</button>
     </div>
 
     <script>
-        const data = [
-            { text: "Overly eager to please", category: "Compliant" },
-            { text: "Quickly leaves when partner texts", category: "Compliant" },
-            { text: "Gives in to demands easily", category: "Compliant" },
-            { text: "Moody or short-tempered", category: "Oppositional" },
-            { text: "Seems difficult or negative with others", category: "Oppositional" }, 
-            { text: "Avoids eye contact or withdraws", category: "Oppositional" }
+        const content = [
+            { id: 'item1', text: 'Ask the partner if they used violence.', type: 'harmful' },
+            { id: 'item2', text: 'Believe them. Do not investigate.', type: 'helpful' },
+            { id: 'item3', text: 'Suggest couples counselling.', type: 'harmful' },
+            { id: 'item4', text: 'Tell them it is not their fault.', type: 'helpful' },
+            { id: 'item5', text: 'Respect their choice to stay or leave.', type: 'helpful' }
         ];
 
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+        let results = { helpful: [], harmful: [] };
 
-        function initPC() {
-            const pool = document.getElementById('drag-pool');
-            pool.innerHTML = '';
-            shuffle([...data]).forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'draggable-item shadow-md';
-                el.textContent = item.text;
-                el.draggable = true;
-                el.dataset.category = item.category;
-                el.id = 'pc-' + Math.random().toString(36).substr(2, 9);
-                el.addEventListener('dragstart', e => e.dataTransfer.setData('text', e.target.id));
-                pool.appendChild(el);
-            });
+        // --- PC DRAG LOGIC ---
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        function drop(ev) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("text");
+            const el = document.getElementById(id);
+            const targetZone = ev.target.closest('.zone') || ev.target.closest('.source-container');
+            if (targetZone) targetZone.appendChild(el);
         }
 
-        document.querySelectorAll('.drop-target').forEach(target => {
-            target.addEventListener('dragover', e => { e.preventDefault(); target.classList.add('drag-over'); });
-            target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
-            target.addEventListener('drop', e => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData('text');
-                const draggable = document.getElementById(id);
-                target.classList.remove('drag-over');
-                target.appendChild(draggable);
-            });
-        });
-
-        document.getElementById('check-btn').addEventListener('click', () => {
-            let correctCount = 0;
-            document.querySelectorAll('.draggable-item').forEach(item => {
-                const parentCat = item.parentElement.dataset.category;
-                if (parentCat === item.dataset.category) {
-                    item.classList.add('correct');
-                    correctCount++;
-                } else if (parentCat) {
-                    item.classList.add('incorrect');
-                    setTimeout(() => {
-                        item.classList.remove('incorrect');
-                        document.getElementById('drag-pool').appendChild(item);
-                    }, 1000);
+        function checkAnswers() {
+            const items = document.querySelectorAll('.draggable');
+            let correct = 0;
+            results = { helpful: [], harmful: [] };
+            items.forEach(item => {
+                const parent = item.parentElement.id;
+                const type = item.dataset.type;
+                if ((type === 'helpful' && parent === 'helpful-zone') || (type === 'harmful' && parent === 'harmful-zone')) {
+                    item.style.border = "1px solid var(--correct)";
+                    correct++;
+                } else {
+                    item.style.border = "1px solid var(--incorrect)";
+                }
+                if(parent !== 'source-zone') {
+                    const finalCat = parent === 'helpful-zone' ? 'helpful' : 'harmful';
+                    results[finalCat].push(item.innerText);
                 }
             });
-            if (correctCount === data.length) document.getElementById('feedback').innerHTML = "<span class='text-green-600'>Perfect!</span>";
-        });
+            if(correct === 5) showSummary();
+            else document.getElementById('feedback-area').innerText = `Sorted correctly: ${correct}/5`;
+        }
 
-        let startX = 0;
-        let currentCard = null;
-
+        // --- MOBILE SWIPE LOGIC ---
+        let swipedCount = 0;
         function initMobile() {
             const stack = document.getElementById('card-stack');
-            stack.innerHTML = '';
-            shuffle([...data]).forEach((item, index) => {
+            content.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = 'swipe-card';
-                card.textContent = item.text;
-                card.dataset.category = item.category;
-                card.style.zIndex = data.length - index;
-                card.addEventListener('touchstart', touchStart);
-                card.addEventListener('touchmove', touchMove);
-                card.addEventListener('touchend', touchEnd);
+                card.innerText = item.text;
+                card.style.zIndex = content.length - i;
+                handleSwipe(card, item);
                 stack.appendChild(card);
             });
         }
 
-        function touchStart(e) {
-            startX = e.touches[0].clientX;
-            currentCard = e.target;
-            currentCard.style.transition = 'none';
-        }
+        function handleSwipe(el, itemData) {
+            let startX = 0, moveX = 0;
+            el.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+            el.addEventListener('touchmove', e => {
+                moveX = e.touches[0].clientX - startX;
+                el.style.transform = `translateX(${moveX}px) rotate(${moveX/15}deg)`;
+                
+                // Hints while dragging
+                if (moveX > 40) el.style.backgroundColor = "#fdfbff"; // Subtle purple-white
+                else if (moveX < -40) el.style.backgroundColor = "#fffbfb"; // Subtle white-rose
+                else el.style.backgroundColor = "white";
+            });
 
-        function touchMove(e) {
-            if (!currentCard) return;
-            const x = e.touches[0].clientX;
-            const diff = x - startX;
-            const category = currentCard.dataset.category;
-
-            currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
-            if (diff > 50) { // Right = Compliant
-                category === "Compliant" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
-            } else if (diff < -50) { // Left = Oppositional
-                category === "Oppositional" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
-            }
-            currentCard.style.transform = `translateX(${diff}px) rotate(${diff/15}deg)`;
-        }
-
-        function touchEnd(e) {
-            if (!currentCard) return;
-            const diff = e.changedTouches[0].clientX - startX;
-            const category = currentCard.dataset.category;
-            const threshold = 100;
-
-            const isCorrectSide = (diff > threshold && category === "Compliant") || (diff < -threshold && category === "Oppositional");
-
-            if (isCorrectSide) {
-                currentCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s';
-                currentCard.style.transform = `translateX(${diff * 4}px) rotate(${diff/5}deg)`;
-                currentCard.style.opacity = '0';
-                setTimeout(() => {
-                    currentCard.remove();
-                    if (document.getElementById('card-stack').children.length === 0) {
-                        document.getElementById('feedback').innerHTML = "<span class='text-green-600'>All Correct!</span>";
+            el.addEventListener('touchend', () => {
+                const direction = moveX > 80 ? 'helpful' : (moveX < -80 ? 'harmful' : null);
+                
+                if (direction) {
+                    if (direction === itemData.type) {
+                        el.style.backgroundColor = "var(--correct)";
+                        el.style.color = "white";
+                        el.style.transform = `translateX(${moveX > 0 ? 800 : -800}px) rotate(${moveX/5}deg)`;
+                        results[direction].push(itemData.text);
+                        swipedCount++;
+                        if(swipedCount === content.length) setTimeout(showSummary, 500);
+                    } else {
+                        el.style.backgroundColor = "var(--incorrect)";
+                        el.style.color = "white";
+                        setTimeout(() => {
+                            el.style.transform = 'translateX(0) rotate(0)';
+                            el.style.backgroundColor = 'white';
+                            el.style.color = 'var(--text-color)';
+                        }, 400);
                     }
-                }, 400);
-            } else {
-                currentCard.style.transition = 'transform 0.3s ease-out, background-color 0.3s';
-                currentCard.style.transform = 'translateX(0) rotate(0)';
-                currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
-            }
-            currentCard = null;
+                } else {
+                    el.style.transform = 'translateX(0) rotate(0)';
+                    el.style.backgroundColor = 'white';
+                }
+                moveX = 0;
+            });
         }
 
-        initPC();
-        initMobile();
+        function showSummary() {
+            const pc = document.querySelector('.game-container');
+            const mobile = document.getElementById('mobile-swipe-root');
+            const controls = document.querySelector('.controls');
+            if(pc) pc.style.display = 'none';
+            if(mobile) mobile.style.display = 'none';
+            if(controls) controls.style.display = 'none';
+            document.getElementById('summary-view').style.display = 'block';
+            document.getElementById('sum-helpful').innerHTML = results.helpful.map(t => `<li class="help-text">✓ ${t}</li>`).join('');
+            document.getElementById('sum-harmful').innerHTML = results.harmful.map(t => `<li class="harm-text">✕ ${t}</li>`).join('');
+        }
+
+        if (window.innerWidth <= 768) initMobile();
     </script>
 </body>
 </html>
