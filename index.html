@@ -1,160 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workplace Scenario Training</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0" />
-
+    <title>Compliant or Oppositional Drag & Drop Activity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* General Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #F2F2F2;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-
-        #app-container {
+            min-height: 100vh;
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 1rem;
         }
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        /* Heading Tweak: Removing Colors */
-        .choices h2, .choices h3, .choice-heading {
-            color: #333333 !important; /* Standard text color */
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        /* Mobile Instruction Styling */
-        .swipe-instruction {
-            display: none; /* Hidden on desktop */
-            text-align: center;
-            font-size: 0.9rem;
-            color: #666;
-            margin: 10px 0 20px 0;
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.4;
-            padding: 10px;
-            background: #f9f9f9;
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #FFF;
             border-radius: 8px;
-            border: 1px dashed #ccc;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Responsive Breakpoint for Mobile */
-        @media (max-width: 768px) {
-            .swipe-instruction {
-                display: block; /* Visible only on mobile/tablets */
-            }
-        }
-
-        /* Existing Structure Styles */
-        .progress-container {
-            background: #eee;
-            height: 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            background: #4caf50;
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .trust-indicator {
-            font-size: 0.85rem;
-            color: #555;
-            text-align: right;
+        .instruction-box {
+            min-height: 120px; 
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #C6B4D9;
+            background-color: #F2F2F2;
             margin-bottom: 20px;
         }
 
-        .content-wrapper {
+        /* --- DESKTOP SPECIFIC STYLES --- */
+        .draggable-item {
+            cursor: grab;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            background-color: #C6B4D9;
+            color: #413659;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            width: fit-content;
+            transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
+        }
+
+        .drop-target {
+            background-color: #413659;
+            color: #F2F2F2;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 0.5rem;
+            flex-grow: 1; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            min-height: 120px;
+            transition: background-color 0.2s, border 0.2s;
+            border: 3px solid transparent;
         }
 
-        .avatar {
-            width: 60px;
-            height: 60px;
-            background: #007bff;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
+        .drop-target-title { font-weight: 700; color: #C6B4D9; }
+        .drag-over { border: 3px dashed #C6B4D9; background-color: #513873; }
+        .correct { background-color: #a7f3d0 !important; border: 2px solid #059669 !important; pointer-events: none; }
+        .incorrect { background-color: #fecaca !important; border: 2px solid #ef4444 !important; }
+
+        /* --- MOBILE SWIPE STYLES --- */
+        #mobile-swipe-zone {
+            display: none;
+            flex-direction: column;
             align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
+            width: 100%;
         }
 
-        .scenario-text {
-            font-size: 1.1rem;
-            color: #222;
+        .swipe-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 15px;
+            font-weight: 700;
+            /* Matches Heading Colour #513873 */
+            color: #513873; 
+            font-size: 0.85rem;
+        }
+
+        .card-stack {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            height: 220px;
+            perspective: 1000px;
+        }
+
+        .swipe-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #C6B4D9;
+            color: #413659;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            line-height: 1.5;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            touch-action: none;
+            transition: transform 0.1s ease-out, background-color 0.3s;
+        }
+
+        /* Swipe Feedback */
+        .swipe-correct { background-color: #d1fae5 !important; border: 2px solid #059669; }
+        .swipe-incorrect { background-color: #fee2e2 !important; border: 2px solid #ef4444; }
+
+        @media (max-width: 767px) {
+            #desktop-interaction-zone { display: none; }
+            #mobile-swipe-zone { display: flex; }
         }
     </style>
 </head>
-
 <body>
 
-    <div id="app-container">
-        <main class="card" id="scenario-card" aria-live="polite">
+    <div class="container">
+        <h2 id="main-heading" class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
+        
+        <div class="instruction-box text-sm text-[#413659]">
+            <p class="text-center w-full mb-2">
+                <strong>Sort the characteristics below into Oppositional or Compliant behaviours</strong>
+            </p>
+            <p><strong>Compliant:</strong> Acts obedient or eager to please as a way to avoid further punishment.</p>
+            <p><strong>Oppositional:</strong> Acts moody, withdrawn, or hostile because the immense stress and trauma are leaking out.</p>
+        </div>
 
-            <div class="card-header">
-                <div class="progress-container">
-                    <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+        <div id="desktop-interaction-zone">
+            <div id="drop-targets" class="flex justify-center gap-4 mb-3">
+                <div id="target-Compliant" class="drop-target w-1/2" data-category="Compliant">
+                    <div class="drop-target-title">Compliant</div>
                 </div>
-                <div class="trust-indicator" id="trust-indicator">
-                    Trust Level: <span id="trust-value">Neutral</span>
-                </div>
-            </div>
-
-            <div class="content-wrapper">
-                <div class="avatar-container" id="avatar-container">
-                    <div class="avatar">S</div>
-                </div>
-
-                <div class="text-area">
-                    <div id="monologue-text" class="monologue-text"></div>
-                    
-                    <div id="swipe-instruction" class="swipe-instruction">
-                        Swipe the cards <strong>left</strong> or <strong>right</strong> to decide if the action is <br>
-                        Helpful & Safe or Harmful & Unsafe.
-                    </div>
-
-                    <div id="scenario-text" class="scenario-text">Loading module...</div>
+                <div id="target-Oppositional" class="drop-target w-1/2" data-category="Oppositional">
+                    <div class="drop-target-title">Oppositional</div>
                 </div>
             </div>
+            <div id="drag-pool" class="flex flex-wrap justify-center p-2 bg-[#F2F2F2] rounded-lg mb-4 min-h-[150px]"></div>
+            <div class="text-center">
+                <button id="check-btn" class="px-6 py-2 bg-[#513873] text-white font-semibold rounded-lg">Check Answers</button>
+            </div>
+        </div>
 
-            <div id="choices-container" class="choices"></div>
-        </main>
+        <div id="mobile-swipe-zone">
+            <div class="swipe-labels">
+                <span>← OPPOSITIONAL</span>
+                <span>COMPLIANT →</span>
+            </div>
+            <div id="card-stack" class="card-stack"></div>
+            <p class="text-xs text-gray-500 mt-6 italic text-center">Swipe the card to the correct side to categorize it.</p>
+        </div>
+
+        <div id="feedback" class="mt-4 text-center font-bold text-lg"></div>
     </div>
 
-    <script src="scenario_data.js"></script>
-    <script src="script.js"></script>
-</body>
+    <script>
+        const data = [
+            { text: "Overly eager to please", category: "Compliant" },
+            { text: "Quickly leaves when partner texts", category: "Compliant" },
+            { text: "Gives in to demands easily", category: "Compliant" },
+            { text: "Moody or short-tempered", category: "Oppositional" },
+            { text: "Seems difficult or negative with others", category: "Oppositional" }, 
+            { text: "Avoids eye contact or withdraws", category: "Oppositional" }
+        ];
 
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+        function initPC() {
+            const pool = document.getElementById('drag-pool');
+            pool.innerHTML = '';
+            shuffle([...data]).forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'draggable-item shadow-md';
+                el.textContent = item.text;
+                el.draggable = true;
+                el.dataset.category = item.category;
+                el.id = 'pc-' + Math.random().toString(36).substr(2, 9);
+                el.addEventListener('dragstart', e => e.dataTransfer.setData('text', e.target.id));
+                pool.appendChild(el);
+            });
+        }
+
+        document.querySelectorAll('.drop-target').forEach(target => {
+            target.addEventListener('dragover', e => { e.preventDefault(); target.classList.add('drag-over'); });
+            target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
+            target.addEventListener('drop', e => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('text');
+                const draggable = document.getElementById(id);
+                target.classList.remove('drag-over');
+                target.appendChild(draggable);
+            });
+        });
+
+        document.getElementById('check-btn').addEventListener('click', () => {
+            let correctCount = 0;
+            document.querySelectorAll('.draggable-item').forEach(item => {
+                const parentCat = item.parentElement.dataset.category;
+                if (parentCat === item.dataset.category) {
+                    item.classList.add('correct');
+                    correctCount++;
+                } else if (parentCat) {
+                    item.classList.add('incorrect');
+                    setTimeout(() => {
+                        item.classList.remove('incorrect');
+                        document.getElementById('drag-pool').appendChild(item);
+                    }, 1000);
+                }
+            });
+            if (correctCount === data.length) document.getElementById('feedback').innerHTML = "<span class='text-green-600'>Perfect!</span>";
+        });
+
+        let startX = 0;
+        let currentCard = null;
+
+        function initMobile() {
+            const stack = document.getElementById('card-stack');
+            stack.innerHTML = '';
+            shuffle([...data]).forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'swipe-card';
+                card.textContent = item.text;
+                card.dataset.category = item.category;
+                card.style.zIndex = data.length - index;
+                card.addEventListener('touchstart', touchStart);
+                card.addEventListener('touchmove', touchMove);
+                card.addEventListener('touchend', touchEnd);
+                stack.appendChild(card);
+            });
+        }
+
+        function touchStart(e) {
+            startX = e.touches[0].clientX;
+            currentCard = e.target;
+            currentCard.style.transition = 'none';
+        }
+
+        function touchMove(e) {
+            if (!currentCard) return;
+            const x = e.touches[0].clientX;
+            const diff = x - startX;
+            const category = currentCard.dataset.category;
+
+            currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
+            if (diff > 50) { // Right = Compliant
+                category === "Compliant" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
+            } else if (diff < -50) { // Left = Oppositional
+                category === "Oppositional" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
+            }
+            currentCard.style.transform = `translateX(${diff}px) rotate(${diff/15}deg)`;
+        }
+
+        function touchEnd(e) {
+            if (!currentCard) return;
+            const diff = e.changedTouches[0].clientX - startX;
+            const category = currentCard.dataset.category;
+            const threshold = 100;
+
+            const isCorrectSide = (diff > threshold && category === "Compliant") || (diff < -threshold && category === "Oppositional");
+
+            if (isCorrectSide) {
+                currentCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s';
+                currentCard.style.transform = `translateX(${diff * 4}px) rotate(${diff/5}deg)`;
+                currentCard.style.opacity = '0';
+                setTimeout(() => {
+                    currentCard.remove();
+                    if (document.getElementById('card-stack').children.length === 0) {
+                        document.getElementById('feedback').innerHTML = "<span class='text-green-600'>All Correct!</span>";
+                    }
+                }, 400);
+            } else {
+                currentCard.style.transition = 'transform 0.3s ease-out, background-color 0.3s';
+                currentCard.style.transform = 'translateX(0) rotate(0)';
+                currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
+            }
+            currentCard = null;
+        }
+
+        initPC();
+        initMobile();
+    </script>
+</body>
 </html>
